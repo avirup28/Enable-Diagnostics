@@ -1,0 +1,16 @@
+$sa = Get-AzStorageAccount -Name Name logextconsumerap01 -ResourceGroupName RG
+
+$ACs = Get-AzResource -ResourceType "Microsoft.Automation/automationAccounts"
+
+foreach ($AC in $ACs) {
+
+$State = (Get-AzDiagnosticSetting -ResourceId $AC.ResourceId).StorageAccountId
+
+    if (-not$State) {
+
+    Write-Host "Setting Diagnostic for $($AC.Name)"
+    Set-AzDiagnosticSetting -ResourceId $AC.ResourceId -StorageAccountId $sa.Id -Enabled $true -MetricCategory AllMetrics -Category JobLogs,JobStreams,DscNodeStatus -RetentionEnabled $true -RetentionInDays 365
+
+        }
+    else { Write-Host "$($AC.Name) already has diagnostic log Enable"}
+    }
